@@ -24,6 +24,7 @@ Because of that, the parsing rules and output format are expected to be adjusted
 
 ```bash
 python log_parser.py sample_access.log.txt
+python log_parser.py sample_access.log.txt --top 5
 python log_parser.py sample_access.log.txt --output-dir output
 python log_parser.py --help
 ```
