@@ -50,6 +50,13 @@ def write_404_csv(output_file: Path, errors_404: list[tuple[str, str]]):
             writer.writerow([ip, path])
 
 
+def positive_int(value: str) -> int:
+    number = int(value)
+    if number <= 0:
+        raise argparse.ArgumentTypeError("--top must be greater than 0")
+    return number
+
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Parse Apache/Nginx style access logs and summarize requests."
@@ -61,6 +68,12 @@ def parse_args():
     parser.add_argument(
         "--output-dir",
         help="Directory to write CSV summary files"
+    )
+    parser.add_argument(
+        "--top",
+        type=positive_int,
+        default=10,
+        help="Number of top records to display (default: 10)"
     )
     return parser.parse_args()
 
@@ -108,24 +121,24 @@ def main():
     print(f"\nTotal requests: {total_requests}")
     print(f"Parse errors: {parse_errors}")
 
-    print("\nTop IPs:")
-    for ip, count in ip_counter.most_common(10):
+    print(f"\nTop IPs (top {args.top}):")
+    for ip, count in ip_counter.most_common(args.top):
         print(f"{ip:<20} {count}")
 
     print("\nStatus codes:")
     for status, count in status_counter.most_common():
         print(f"{status:<10} {count}")
 
-    print("\nTop Paths:")
-    for path, count in path_counter.most_common(10):
+    print(f"\nTop Paths (top {args.top}):")
+    for path, count in path_counter.most_common(args.top):
         print(f"{path:<30} {count}")
 
-    print("\nBot-like User-Agents:")
-    for ua, count in bot_counter.most_common(10):
+    print(f"\nBot-like User-Agents (top {args.top}):")
+    for ua, count in bot_counter.most_common(args.top):
         print(f"{count:<5} {ua}")
 
-    print("\n404 Records:")
-    for ip, path in errors_404[:10]:
+    print(f"\n404 Records (top {args.top}):")
+    for ip, path in errors_404[:args.top]:
         print(f"{ip:<20} {path}")
 
     if args.output_dir:
